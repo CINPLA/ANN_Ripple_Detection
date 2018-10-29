@@ -30,13 +30,13 @@ def generate_ripple(t, center, A_0=1, scale=0.1*pq.s, omega=30*pq.Hz):
     phase = np.exp(2.*np.pi * omega * 1j*t)
 
     flag = np.zeros_like(A)
-    flag[A>np.max(A)/4.] = 1
+    flag[A>np.max(A)/1.5] = 1
 
     return np.real(A * phase), flag
 
 
-def generate_single_fake_data(sf=1.e3*pq.Hz, t_start=0.*pq.s, t_stop=10.*pq.s,
-                       noise_level=1., n_spikes=10):
+def generate_single_fake_data(sf=2.e2*pq.Hz, t_start=0.*pq.s, t_stop=100.*pq.s,
+                       noise_level=1., n_spikes=100):
     '''
     Generates a white noise stream and adds n_spikes non-overlapping ripples
     '''
@@ -91,5 +91,5 @@ def example_plot():
 
 
 if __name__ == "__main__":
-    generate_fake_data(100)
+    generate_fake_data(1)
     example_plot()
