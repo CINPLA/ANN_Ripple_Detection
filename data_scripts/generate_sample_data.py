@@ -35,8 +35,8 @@ def generate_ripple(t, center, A_0=1, scale=0.1*pq.s, omega=30*pq.Hz):
     return np.real(A * phase), flag
 
 
-def generate_single_fake_data(sf=2.e2*pq.Hz, t_start=0.*pq.s, t_stop=100.*pq.s,
-                       noise_level=1., n_spikes=100):
+def generate_single_fake_data(sf=1.e2*pq.Hz, t_start=0.*pq.s, t_stop=1000.*pq.s,
+                       noise_level=3., n_spikes=1000):
     '''
     Generates a white noise stream and adds n_spikes non-overlapping ripples
     '''
