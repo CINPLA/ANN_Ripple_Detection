@@ -17,7 +17,7 @@ def generate_time_array(t_start, t_stop, sf):
     return t*pq.s
 
 
-def generate_ripple(t, center, A_0=1, scale=0.1*pq.s, omega=30*pq.Hz):
+def generate_ripple(t, center, A_0=1, scale=0.1*pq.s, omega=200*pq.Hz):
     '''
     Generates a Gaussian shaped ripple at loc center with dimensionless
     magnitude A_0 and width scale at frequency omega
@@ -30,12 +30,12 @@ def generate_ripple(t, center, A_0=1, scale=0.1*pq.s, omega=30*pq.Hz):
     phase = np.exp(2.*np.pi * omega * 1j*t)
 
     flag = np.zeros_like(A)
-    flag[A>np.max(A)/1.5] = 1
+    flag[A>np.max(A)/2.] = 1
 
     return np.real(A * phase), flag
 
 
-def generate_single_fake_data(sf=1.e2*pq.Hz, t_start=0.*pq.s, t_stop=1000.*pq.s,
+def generate_single_fake_data(sf=1.e3*pq.Hz, t_start=0.*pq.s, t_stop=1000.*pq.s,
                        noise_level=3., n_spikes=1000):
     '''
     Generates a white noise stream and adds n_spikes non-overlapping ripples
@@ -80,6 +80,7 @@ def generate_fake_data(N, save_dir='../data'):
     np.save(os.path.join(save_dir, 'X.npy'), X)
     np.save(os.path.join(save_dir, 'Y.npy'), Y)
 
+    return t, X, Y
 
 def example_plot():
     t, x, y = generate_single_fake_data()
@@ -91,5 +92,5 @@ def example_plot():
 
 
 if __name__ == "__main__":
-    generate_fake_data(1)
+    t, X, Y = generate_fake_data(1)
     example_plot()
