@@ -17,7 +17,7 @@ def generate_time_array(t_start, t_stop, sf):
     return t*pq.s
 
 
-def generate_ripple(t, center, A_0=1, scale=0.1*pq.s, omega=200*pq.Hz):
+def generate_ripple(t, center, A_0=1, scale=0.1*pq.s, omega=30*pq.Hz):
     '''
     Generates a Gaussian shaped ripple at loc center with dimensionless
     magnitude A_0 and width scale at frequency omega
@@ -30,13 +30,13 @@ def generate_ripple(t, center, A_0=1, scale=0.1*pq.s, omega=200*pq.Hz):
     phase = np.exp(2.*np.pi * omega * 1j*t)
 
     flag = np.zeros_like(A)
-    flag[A>np.max(A)/2.] = 1
+    flag[A>np.max(A)/1.5] = 1
 
     return np.real(A * phase), flag
 
 
-def generate_single_fake_data(sf=1.e3*pq.Hz, t_start=0.*pq.s, t_stop=1000.*pq.s,
-                       noise_level=3., n_spikes=1000):
+def generate_single_fake_data(sf=1.e2*pq.Hz, t_start=0.*pq.s, t_stop=1000.*pq.s,
+                       noise_level=1., n_spikes=1000):
     '''
     Generates a white noise stream and adds n_spikes non-overlapping ripples
     '''
@@ -45,7 +45,8 @@ def generate_single_fake_data(sf=1.e3*pq.Hz, t_start=0.*pq.s, t_stop=1000.*pq.s,
     y = np.zeros((t.shape[0]))
 
     x += noise_level * np.random.randn(t.shape[0])
-    for _ in range(n_spikes):
+    for n in range(n_spikes):
+        print(n)
         while True:
             loc = np.random.uniform(t_start, t_stop, 1)
             ripple, truth = generate_ripple(t, loc)
@@ -53,12 +54,13 @@ def generate_single_fake_data(sf=1.e3*pq.Hz, t_start=0.*pq.s, t_stop=1000.*pq.s,
                 x += ripple
                 y += truth
                 break
+            
     y = y.astype(int)
 
     return t, x, y
 
 
-def generate_fake_data(N, save_dir='../data'):
+def generate_fake_data(N, save_dir='../data/fake_data'):
     '''
     Generates a matrix of N time series and the according ground truth
     '''
@@ -66,21 +68,20 @@ def generate_fake_data(N, save_dir='../data'):
         os.makedirs(save_dir)
 
 #sorry for this hack
-    t, _, _ = generate_single_fake_data()
+#     t, _, _ = generate_single_fake_data()
 
-    X = np.zeros((N, t.shape[0]))
-    Y = np.zeros((N, t.shape[0]))
+#     X = np.zeros((N, t.shape[0]))
+#     Y = np.zeros((N, t.shape[0]))
 
-    for i in range(N):
-        t,x,y = generate_single_fake_data()
-        X[i] = x
-        Y[i] = y
+#     for i in range(N):
+    t,X,Y = generate_single_fake_data()
+#     X[i] = x
+#     Y[i] = y
 
     np.save(os.path.join(save_dir, 't.npy'), t)
     np.save(os.path.join(save_dir, 'X.npy'), X)
     np.save(os.path.join(save_dir, 'Y.npy'), Y)
 
-    return t, X, Y
 
 def example_plot():
     t, x, y = generate_single_fake_data()
@@ -92,5 +93,5 @@ def example_plot():
 
 
 if __name__ == "__main__":
-    t, X, Y = generate_fake_data(1)
-    example_plot()
+    generate_fake_data(1)
+#    example_plot()
