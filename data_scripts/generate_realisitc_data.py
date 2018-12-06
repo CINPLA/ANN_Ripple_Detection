@@ -24,7 +24,7 @@ ripple_loc = np.random.uniform(np.min(time), np.max(time), 1000)
 
 from ripple_detection.simulate import simulate_LFP
 
-LFPs = simulate_LFP(time, ripple_loc, noise_amplitude=1.2, ripple_amplitude=1.5)[:, np.newaxis]
+LFPs = simulate_LFP(time, ripple_loc, noise_amplitude=3., ripple_amplitude=1.5)[:, np.newaxis]
 speed = np.ones_like(time)
 
 
