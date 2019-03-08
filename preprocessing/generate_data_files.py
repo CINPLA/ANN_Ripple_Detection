@@ -13,11 +13,13 @@ import scipy.stats
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
+
 def read_out_arrays(data):
     lfp = data['lfp'][0][0]
     run_speed = data['run_speed'][0][0].flatten()
     ripple_loc = data['rippleLocs'][0][0].flatten()
     return lfp, run_speed, ripple_loc
+
 
 def select_manual_scored_ripples(detector, ripple_time, time):
     ripple_mask = np.zeros_like(time)
@@ -28,12 +30,14 @@ def select_manual_scored_ripples(detector, ripple_time, time):
         delete_mask[i] = np.max(ripple_mask[mask])==1
     return detector[delete_mask]
 
+
 def generate_label_array(detector, time):
     y = np.zeros_like(time)
     for i, ripple in enumerate(detector.itertuples()):
         mask = (np.logical_and(ripple.start_time<=time, ripple.end_time>=time))
         y[mask] = 1
     return y
+
 
 def generate_data_set_for_animal(data, animal, ):
     lfp, run_speed, ripple_time = read_out_arrays(data[animal])
@@ -52,6 +56,7 @@ def generate_data_set_for_animal(data, animal, ):
 
     return x, y
 
+
 def generate_batch_data(X_serial, y_serial, scaling=100):
     series_length = 200
     n_series = int(np.floor(X_serial.shape[0] / series_length)) * scaling
@@ -66,8 +71,9 @@ def generate_batch_data(X_serial, y_serial, scaling=100):
 
     return X, y
 
-def generate_all_outputs():
-    data = sio.loadmat('../data/m4000series_LFP_ripple.mat')
+
+def generate_all_outputs(data_path='../data/m4000series_LFP_ripple.mat'):
+    data = sio.loadmat(data_path)
 
     for key in data.keys():
         if key.startswith("m"):
@@ -83,4 +89,4 @@ def generate_all_outputs():
             np.save(os.path.join(directory, 'y.npy'), y)
 
 if __name__ == '__main__':
-    generate_all_outputs()
+    generate_all_outputs(data_path='../data/m4000series_LFP_ripple.mat')

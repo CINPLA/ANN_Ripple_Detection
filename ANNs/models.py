@@ -98,7 +98,12 @@ def plot_performance(history):
     plt.show()
 
 
-def decode(value):
+def decode(value, threshold=0.992):
+    mask = value[:,1]>threshold
+    y_pred_int = np.array(mask, dtype=int)
+    return y_pred_int
+
+def decode2(value, threshold=0.5):
     return np.argmax(value, axis=-1)
 
 
@@ -106,9 +111,18 @@ def make_accuracy_matrix_plot(model, validate_generator, ref='truth'):
     X_trial, y_trial, = next(validate_generator)
     res = model.predict(X_trial)
 
+    print(y_trial)
+    print(res)
+    
     y = decode(y_trial)
     res = decode(res)
 
+   
+    plt.figure()
+    plt.plot(y)
+    plt.plot(res)
+    plt.show()
+    
     res_matrix = np.zeros((2,2))
     if ref=='truth':
         for i, true_label in enumerate(set(y)):
@@ -134,8 +148,9 @@ def make_accuracy_matrix_plot(model, validate_generator, ref='truth'):
                 color = 'w'
             text = ax.text(j, i, np.round(res_matrix[i, j], decimals=3),
             ha='center', va='center', color=color)
-    ax.set_xlabel('reco class')
-    ax.set_ylabel('true class')
+    ax.set_xlabel('CNN class')
+    ax.set_ylabel('manual class')
     ax.xaxis.set_ticks_position('top')
     # ax.colorbar(im)
+    plt.savefig('plots/res.pdf')
     plt.show()
