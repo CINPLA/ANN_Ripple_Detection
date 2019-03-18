@@ -85,8 +85,8 @@ def generate_all_outputs(data_path='../data/m4000series_LFP_ripple.mat'):
             X, y = generate_batch_data(X_serial, y_serial, scaling=10)
             np.save(os.path.join(directory, 'X_serial.npy'), X_serial)
             np.save(os.path.join(directory, 'y_serial.npy'), y_serial)
-            np.save(os.path.join(directory, 'X.npy'), X)
-            np.save(os.path.join(directory, 'y.npy'), y)
+            # np.save(os.path.join(directory, 'X.npy'), X)
+            # np.save(os.path.join(directory, 'y.npy'), y)
 
 if __name__ == '__main__':
     generate_all_outputs(data_path='../data/m4000series_LFP_ripple.mat')

@@ -16,11 +16,11 @@ from keras.layers import LSTM
 from keras.utils.vis_utils import plot_model
 
 
-def save_model(model, save_dir='models'):
+def save_model(model, save_dir='models', name=''):
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
     t = time.strftime("%Y%m%d-%H:%M:%S")
-    path = os.path.join(save_dir, t+'.h5')
+    path = os.path.join(save_dir, t+'_'+str(name)+'.h5')
     model.save(path)
 
 
