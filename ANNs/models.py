@@ -29,13 +29,13 @@ def generate_model_CNN(input_shape, padding='same'):
 
     input_layer = keras.layers.Input(shape=input_shape)
 
-    conv1 = keras.layers.Conv1D(filters=6,kernel_size=7,padding=padding,activation='sigmoid')(input_layer)
+    conv1 = keras.layers.Conv1D(filters=6,kernel_size=7,padding=padding,activation='relu')(input_layer)
     conv1 = keras.layers.AveragePooling1D(pool_size=2)(conv1)
 
-    conv2 = keras.layers.Conv1D(filters=12,kernel_size=7,padding=padding,activation='sigmoid')(conv1)
+    conv2 = keras.layers.Conv1D(filters=12,kernel_size=7,padding=padding,activation='relu')(conv1)
     conv2 = keras.layers.AveragePooling1D(pool_size=2)(conv2)
 
-    conv3 = keras.layers.Conv1D(filters=12,kernel_size=7,padding=padding,activation='sigmoid')(conv2)
+    conv3 = keras.layers.Conv1D(filters=12,kernel_size=7,padding=padding,activation='relu')(conv2)
     conv3 = keras.layers.AveragePooling1D(pool_size=2)(conv3)
 
     flatten_layer = keras.layers.Flatten()(conv3)

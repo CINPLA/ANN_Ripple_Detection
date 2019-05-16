@@ -26,8 +26,7 @@ def generator(X, y, batch_size, window_size, threashold=0.5, predict_early=0):
             a = X[index:index+window_size]
             batch_features[i] = np.reshape(a, (a.shape[0], -1))
             val = y[index-predict_early:index+window_size-predict_early]
-            #
-            if np.max(y)>0:
+            if np.sum(val[:,0,1])>0:
                 batch_labels[i] = np.array([0, 1])
             else:
                 batch_labels[i] = np.array([1, 0])
@@ -37,7 +36,3 @@ def decode(value, threshold=0.992):
     mask = value[:,1]>threshold
     y_pred_int = np.array(mask, dtype=int)
     return y_pred_int
-
-
-def decode2(value, threshold=0.5):
-    return np.argmax(value, axis=-1)
