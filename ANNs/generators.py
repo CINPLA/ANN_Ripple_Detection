@@ -16,29 +16,22 @@ from keras.layers import LSTM
 from keras.utils.vis_utils import plot_model
 
 
-def generator(X, y, batch_size, lookback, return_full_stream=False, threashold=0.5, predict_early=0):
-    batch_features = np.zeros((batch_size, lookback, 1))
+def generator(X, y, batch_size, window_size, threashold=0.5, predict_early=0):
+    batch_features = np.zeros((batch_size, window_size, 1))
     batch_labels = np.zeros((batch_size, 2))
-    if return_full_stream:
-        batch_labels_full = np.zeros((batch_size, lookback, 2))
+
     while True:
         for i in range(batch_size):
-            index = np.random.randint(predict_early, X.shape[0]-lookback)
-            a = X[index:index+lookback]
+            index = np.random.randint(predict_early, X.shape[0]-window_size)
+            a = X[index:index+window_size]
             batch_features[i] = np.reshape(a, (a.shape[0], -1))
-            val = y[index-predict_early:index+lookback-predict_early]
-            if return_full_stream:
-                batch_labels_full[i] = y[index-predict_early:index+lookback-predict_early]
-            rate = np.sum(val, axis=0)
-            ratio = rate[1] / float(val.shape[0])
-            if ratio>=threashold:
+            val = y[index-predict_early:index+window_size-predict_early]
+            #
+            if np.max(y)>0:
                 batch_labels[i] = np.array([0, 1])
             else:
                 batch_labels[i] = np.array([1, 0])
-        if return_full_stream:
-            yield batch_features, batch_labels, batch_labels_full
-        else:
-            yield batch_features, batch_labels
+        yield batch_features, batch_labels
 
 def decode(value, threshold=0.992):
     mask = value[:,1]>threshold
