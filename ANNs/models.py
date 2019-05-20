@@ -40,9 +40,10 @@ def generate_model_CNN(input_shape, padding='same'):
 
     flatten_layer = keras.layers.Flatten()(conv3)
 
-    full_conencted = keras.layers.Dense(200)(flatten_layer)
+    full_conencted1 = keras.layers.Dense(100)(flatten_layer)
+    full_conencted2 = keras.layers.Dense(100)(full_conencted1)
 
-    output_layer = keras.layers.Dense(units=2,activation='softmax')(full_conencted)
+    output_layer = keras.layers.Dense(units=2,activation='softmax')(full_conencted2)
 
     model = keras.models.Model(inputs=input_layer, outputs=output_layer)
     model.compile(loss=['categorical_crossentropy'],

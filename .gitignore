@@ -2,3 +2,5 @@ data
 plots
 ANNs/models/
 ANNs/plots/
+.*
+*/*__*__
