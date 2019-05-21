@@ -18,6 +18,7 @@ from keras.utils.vis_utils import plot_model
 
 def generator(X, y, batch_size, window_size, threashold=0.5, predict_early=0):
     batch_features = np.zeros((batch_size, window_size, 1))
+    batch_v = np.zeros((batch_size, window_size, 1))
     batch_labels = np.zeros((batch_size, 2))
 
     while True:
@@ -26,7 +27,10 @@ def generator(X, y, batch_size, window_size, threashold=0.5, predict_early=0):
             a = X[index:index+window_size]
             batch_features[i] = np.reshape(a, (a.shape[0], -1))
             val = y[index-predict_early:index+window_size-predict_early]
+            # b = v[index:index+window_size]
+            # batch_v[i] = np.reshape(b, (b.shape[0], -1))
             if np.sum(val[:,0,1])>0:
+                # print(np.max(np.squeeze(batch_v[i])), np.squeeze(batch_v[i]).shape)
                 batch_labels[i] = np.array([0, 1])
             else:
                 batch_labels[i] = np.array([1, 0])
