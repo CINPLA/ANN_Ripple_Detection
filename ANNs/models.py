@@ -14,6 +14,7 @@ from keras.models import load_model
 from keras.layers import Dense
 from keras.layers import LSTM
 from keras.utils.vis_utils import plot_model
+from keras.layers.normalization import BatchNormalization
 
 
 def save_model(model, save_dir='models', name=''):
@@ -28,19 +29,29 @@ def generate_model_CNN(input_shape, padding='same'):
     keras.backend.clear_session()
 
     input_layer = keras.layers.Input(shape=input_shape)
+    # input_layer = keras.layers.BatchNormalization()(input_layer)
 
-    conv1 = keras.layers.Conv1D(filters=6,kernel_size=7,padding=padding,activation='relu')(input_layer)
+    conv1 = keras.layers.Conv1D(filters=20,kernel_size=7,padding=padding,
+                                activation='relu')(input_layer)
     conv1 = keras.layers.AveragePooling1D(pool_size=2)(conv1)
+    conv1 = keras.layers.BatchNormalization()(conv1)
 
-    conv2 = keras.layers.Conv1D(filters=12,kernel_size=7,padding=padding,activation='relu')(conv1)
+    conv2 = keras.layers.Conv1D(filters=20,kernel_size=7,padding=padding,
+                                activation='relu')(conv1)
     conv2 = keras.layers.AveragePooling1D(pool_size=2)(conv2)
+    conv2 = keras.layers.BatchNormalization()(conv2)
 
-    conv3 = keras.layers.Conv1D(filters=12,kernel_size=7,padding=padding,activation='relu')(conv2)
+    conv3 = keras.layers.Conv1D(filters=12,kernel_size=7,padding=padding,
+                                activation='relu')(conv2)
     conv3 = keras.layers.AveragePooling1D(pool_size=2)(conv3)
+    conv3 = keras.layers.BatchNormalization()(conv3)
 
     flatten_layer = keras.layers.Flatten()(conv3)
+    flatten_layer = keras.layers.BatchNormalization()(flatten_layer)
 
     full_conencted1 = keras.layers.Dense(100)(flatten_layer)
+    full_conencted1 = keras.layers.BatchNormalization()(full_conencted1)
+    
     full_conencted2 = keras.layers.Dense(100)(full_conencted1)
 
     output_layer = keras.layers.Dense(units=2,activation='softmax')(full_conencted2)
