@@ -22,7 +22,7 @@ def generate_data_set_for_animal(data, animal, sf=2.5e3, q=3):
     lfp, speed, ripple_times = read_out_arrays(data[animal])
 
     time = simulate_time(lfp.shape[0], sf)
-    Kay_ripple_times = Kay_ripple_detector(time, lfp, speed.flatten(), sf, speed_threshold=1000.0)
+    Kay_ripple_times = Kay_ripple_detector(time, lfp, speed.flatten(), sf)
 
     label = np.zeros_like(time)
     for i in range(Kay_ripple_times.shape[0]):
