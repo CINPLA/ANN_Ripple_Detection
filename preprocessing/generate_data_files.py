@@ -4,6 +4,7 @@ import scipy
 import os
 import glob
 import warnings
+from scipy import signal
 
 from ripple_detection import Karlsson_ripple_detector, Kay_ripple_detector
 from ripple_detection.simulate import simulate_time
@@ -19,13 +20,23 @@ def read_out_arrays(data):
     return lfp[:min_val,:], run_speed[:min_val,:], ripple_loc
 
 
-def generate_data_set_for_animal(data, animal, sf=2.5e3, q=4):
+def generate_data_set_for_animal(data, animal, sf=2.5e3, q=1):
     lfp, speed, ripple_index = read_out_arrays(data[animal])
 
     time = simulate_time(lfp.shape[0], sf)
     ripple_times = time[ripple_index]
 
     lfp = scipy.signal.decimate(lfp.flatten(), q)
+    # lfp = lfp.flatten()
+
+    def perform_high_pass_filter(lfp, low_cut_frequency, high_cut_frequency, sf):
+            wn = sf / 2.
+            b, a = signal.butter(5, [low_cut_frequency/wn, high_cut_frequency/wn], 'bandpass')
+            lfp = signal.filtfilt(b, a, lfp)
+            return lfp
+
+    lfp = perform_high_pass_filter(lfp, 1, 500, sf)
+
     lfp = lfp[:, np.newaxis]
     speed = scipy.signal.decimate(speed.flatten(), q)
     time = simulate_time(lfp.shape[0], sf/q)
@@ -58,7 +69,7 @@ def generate_data_set_for_animal(data, animal, sf=2.5e3, q=4):
     return res
 
 
-def generate_individual_objects(data, window_size=0.2):
+def generate_individual_objects(data, window_size=2.):
     window_size = window_size * data['sf']
     half_wdith = int(window_size/2)
 
@@ -72,44 +83,49 @@ def generate_individual_objects(data, window_size=0.2):
         ripple_center = int(np.round((data['ripple_index'][i,1]+data['ripple_index'][i,0])/2))
         mask[ripple_center-half_wdith:ripple_center+half_wdith] = 1
         mask = np.array(mask, dtype=bool)
-        batch.append(data['X'][mask])
+        batch.append(np.array(data['X'][mask]))
         overlap = np.sum(full_ripple_times * mask), np.sum(mask)
         if overlap[0]>0:
             label.append(1)
         else:
             label.append(0)
-
-        return np.array(batch), np.array(label)
+    return np.array(batch), np.array(label)
 
 
 def merge_all_data():
-    X = 'empty'
-    y = 'empty'
+
+    directory = '../data/merged_data'
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    X_all = list()
+    y_all = list()
+
     file_list = glob.glob('../data/processed_data/*')
 
-    data = dict()
-    for f in file_list:
+    for f in file_list[:-1]:
         name = f.split('/')[-1]
-        file = np.load(os.path.join(f, 'all.npy')).item()
-        data[name] = file
+        X = np.load(os.path.join(f, 'X.npy'))
+        y = np.load(os.path.join(f, 'y.npy'))
+        X_all.append(X)
+        y_all.append(y)
+        # print(file['X'].shape)
 
-    for k in list(data.keys())[:-1]:
-        if X=='empty':
-            X = data[k]['X']
-            y = data[k]['y']
-        else:
-            X = np.concatenate([X, data[k]['X']])
-            y = np.concatenate([y, data[k]['y']])
 
-    np.save('../data/merged_data/X_train.npy', X)
-    np.save('../data/merged_data/y_train.npy', y)
+    X_all = np.concatenate(X_all, axis=0)
+    y_all = np.concatenate(y_all, axis=0)
+    print(X_all.shape, y_all.shape)
 
-    np.save('../data/merged_data/X_test.npy', data[list(data.keys())[-1]]['X'])
-    np.save('../data/merged_data/y_test.npy', data[list(data.keys())[-1]]['y'])
+    np.save(os.path.join(directory,'X.npy'), X_all)
+    np.save(os.path.join(directory,'y.npy'), y_all)
 
 
 def generate_all_outputs(data_path='../data/m4000series_LFP_ripple.mat'):
     data = sio.loadmat(data_path)
+
+    directory = os.path.join('..', 'data', 'processed_data')
+    if not os.path.exists(directory):
+        os.makedirs(directory)
 
     for key in data.keys():
         if key.startswith("m"):
@@ -117,8 +133,8 @@ def generate_all_outputs(data_path='../data/m4000series_LFP_ripple.mat'):
             directory = os.path.join('..', 'data', 'processed_data', key)
             if not os.path.exists(directory):
                 os.makedirs(directory)
-            res = generate_data_set_for_animal(data, key, )
-            X, y = generate_individual_objects(res, window_size=0.2)
+            res = generate_data_set_for_animal(data, key, sf=2.5e3, q=1)
+            X, y = generate_individual_objects(res, window_size=0.5)
             np.save(os.path.join(directory, 'all.npy'), res)
             np.save(os.path.join(directory, 'X.npy'), X)
             np.save(os.path.join(directory, 'y.npy'), y)
